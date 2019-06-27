@@ -12,25 +12,26 @@ const server = http.createServer(app);
 // Connect socket.io to the server.
 const io = socketio(server);
 
+// Set-up our port.
 const port = process.env.PORT || 3000;
 
+// Using Express to serve up client side directory.
 const publicDirectoryPath = path.join(__dirname, '../public');
 
 app.use(express.static(publicDirectoryPath));
 
-let count = 0;
-
+// First draft chat message between client and server.
 io.on('connection', (socket) => {
     console.log('New WebSocket connection.');
 
-    socket.emit('countUpdated', count);
+    socket.emit('message', 'Welcome!');
 
-    socket.on('increment', () => {
-        count++
-        io.emit('countUpdated', count);
+    socket.on('sendMessage', (message) => {
+        io.emit('message', message);
     });
 });
 
+// Listening for our server.
 server.listen(port, () => {
     console.log(`Server is up on port ${port}`);
 })
