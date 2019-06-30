@@ -2,6 +2,7 @@ const path = require('path'); // Path is core Node module. Doesn't need to be in
 const http = require('http');
 const express = require('express');
 const socketio = require('socket.io');
+const Filter = require('bad-words');
 
 // Create Express application.
 const app = express();
@@ -28,12 +29,21 @@ io.on('connection', (socket) => {
 
     socket.broadcast.emit('message', 'A new user has joined!');
 
-    socket.on('sendMessage', (message) => {
+    socket.on('sendMessage', (message, callback) => {
+        const filter = new Filter();
+
+        if (filter.isProfane(message)) {
+            return callback('Profanity is not allowed!');
+        }
+        
         io.emit('message', message);
+
+        callback();
     });
 
-    socket.on('sendLocation', (coordinates) => {
+    socket.on('sendLocation', (coordinates, callback) => {
         io.emit('message', `https://google.com/maps?q=${coordinates.latitude},${coordinates.longitude}`);
+        callback('Location shared!');
     });
 
     socket.on('disconnect', () => {
