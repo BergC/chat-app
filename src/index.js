@@ -42,7 +42,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('sendLocation', (coordinates, callback) => {
-        io.emit('message', `https://google.com/maps?q=${coordinates.latitude},${coordinates.longitude}`);
+        io.emit('locationMessage', `https://google.com/maps?q=${coordinates.latitude},${coordinates.longitude}`);
         callback('Location shared!');
     });
 

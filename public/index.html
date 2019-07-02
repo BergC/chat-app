@@ -14,9 +14,17 @@
 
         <button id="send-location">Send Location</button>
         
+        <!--Mustache template for sending messages.-->
         <script id="message-template" type="text/html">
             <div>
                 <p>{{message}}</p>
+            </div>
+        </script>
+
+        <!--Mustache template for sending locations.-->
+        <script id="location-message-template" type="text/html">
+            <div>
+                <p><a href="{{location}}" target="_blank">My current location.</a></p>
             </div>
         </script>
 
