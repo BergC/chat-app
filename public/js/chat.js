@@ -11,12 +11,16 @@ const $messages = document.querySelector('#messages');
 const messageTemplate = document.querySelector('#message-template').innerHTML;
 const locationMessageTemplate = document.querySelector('#location-message-template').innerHTML;
 
+// Options
+const { username, room } = Qs.parse(location.search, { ignoreQueryPrefix: true }); // QS gives us access to the Chrome dev tools location.search, which is the users query string.
+
 // Send current location link.
 socket.on('locationMessage', (location) => {
     console.log(location);
 
     const html = Mustache.render(locationMessageTemplate, {
-        location
+        location: location.url,
+        createdAt: moment(location.createdAt).format('HH:mm')
     });
 
     $messages.insertAdjacentHTML('beforeend', html);
@@ -27,7 +31,8 @@ socket.on('message', (message) => {
     console.log(message);
 
     const html = Mustache.render(messageTemplate, {
-        message
+        message: message.text,
+        createdAt: moment(message.createdAt).format('HH:mm')
     });
     
     $messages.insertAdjacentHTML('beforeend', html);
@@ -75,3 +80,6 @@ $sendLocationButton.addEventListener('click', () => {
         });
     });
 });
+
+// Join specific chat room.
+socket.emit('join', { username, room });
