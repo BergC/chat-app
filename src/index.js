@@ -36,28 +36,31 @@ io.on('connection', (socket) => {
 
         socket.join(user.room);
 
-        socket.emit('message', generateMessage('Welcome!'));
+        socket.emit('message', generateMessage('Admin', 'Welcome!'));
 
         // Send a message to all connected clients in a specific room but the newly joined user.
-        socket.broadcast.to(user.room).emit('message', generateMessage(`${user.username} has joined!`));
+        socket.broadcast.to(user.room).emit('message', generateMessage('Admin', `${user.username} has joined!`));
 
         callback();
     });
 
     socket.on('sendMessage', (message, callback) => {
+        const user = getUser(socket.id);
         const filter = new Filter();
 
         if (filter.isProfane(message)) {
             return callback('Profanity is not allowed!');
-        }
-        
-        io.to('Cars').emit('message', generateMessage(message));
+        }        
+
+        io.to(user.room).emit('message', generateMessage(user.username, message));
 
         callback();
     });
 
     socket.on('sendLocation', (coordinates, callback) => {
-        io.emit('locationMessage', generateLocationMessage(`https://google.com/maps?q=${coordinates.latitude},${coordinates.longitude}`));
+        const user = getUser(socket.id);
+        
+        io.to(user.room).emit('locationMessage', generateLocationMessage(user.username, `https://google.com/maps?q=${coordinates.latitude},${coordinates.longitude}`));
         callback('Location shared!');
     });
 
@@ -65,7 +68,7 @@ io.on('connection', (socket) => {
         const user = removeUser(socket.id);
 
         if (user) {
-            io.to(user.room).emit('message', generateMessage(`${user.username} has left.`));
+            io.to(user.room).emit('message', generateMessage('Admin', `${user.username} has left.`));
         }
     });
 });
