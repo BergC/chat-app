@@ -10,6 +10,7 @@ const $messages = document.querySelector('#messages');
 // Templates
 const messageTemplate = document.querySelector('#message-template').innerHTML;
 const locationMessageTemplate = document.querySelector('#location-message-template').innerHTML;
+const sidebarTemplate = document.querySelector('#sidebar-template').innerHTML;
 
 // Options
 const { username, room } = Qs.parse(location.search, { ignoreQueryPrefix: true }); // QS gives us access to the Chrome dev tools location.search, which is the users query string.
@@ -62,6 +63,16 @@ $messageForm.addEventListener('submit', (e) => {
 
         console.log('Message delivered.');
     });
+});
+
+// Render users in room.
+socket.on('roomData', ({ room, users }) => {
+    const html = Mustache.render(sidebarTemplate, {
+        room,
+        users
+    });
+
+    document.querySelector('#sidebar').innerHTML = html;
 });
 
 // Send location.
