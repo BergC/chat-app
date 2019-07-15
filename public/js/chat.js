@@ -15,18 +15,28 @@ const sidebarTemplate = document.querySelector('#sidebar-template').innerHTML;
 // Options
 const { username, room } = Qs.parse(location.search, { ignoreQueryPrefix: true }); // QS gives us access to the Chrome dev tools location.search, which is the users query string.
 
-// Send current location link.
-socket.on('locationMessage', (location) => {
-    console.log(location);
+const autoscroll = () => {
+    // New message element.
+    const $newMessage = $messages.lastElementChild;
 
-    const html = Mustache.render(locationMessageTemplate, {
-        username: location.username,
-        location: location.url,
-        createdAt: moment(location.createdAt).format('HH:mm')
-    });
+    // Height of the new message.
+    const newMessageStyles = getComputedStyle($newMessage);
+    const newMessageMargin = parseInt(newMessageStyles.marginBottom);
+    const newMessageHeight = $newMessage.offsetHeight + newMessageMargin;
 
-    $messages.insertAdjacentHTML('beforeend', html);
-});
+    // Visible height.
+    const visibleHeight = $messages.offsetHeight;
+
+    // Messages container height.
+    const containerHeight = $messages.scrollHeight;
+
+    // How far have I scrolled?
+    const scrollOffset = $messages.scrollTop + visibleHeight;
+
+    if (containerHeight - newMessageHeight <= scrollOffset) {
+        $messages.scrollTop = $messages.scrollHeight;
+    }
+}
 
 // Send a message.
 socket.on('message', (message) => {
@@ -39,6 +49,21 @@ socket.on('message', (message) => {
     });
     
     $messages.insertAdjacentHTML('beforeend', html);
+    autoscroll();
+});
+
+// Send current location link.
+socket.on('locationMessage', (location) => {
+    console.log(location);
+
+    const html = Mustache.render(locationMessageTemplate, {
+        username: location.username,
+        location: location.url,
+        createdAt: moment(location.createdAt).format('HH:mm')
+    });
+
+    $messages.insertAdjacentHTML('beforeend', html);
+    autoscroll();
 });
 
 $messageForm.addEventListener('submit', (e) => {
